@@ -1,8 +1,9 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 // import Calculation from "./components/Calculation";
-import { Layout, Menu, Breadcrumb } from "antd";
 import NavBar from "./components/NavBar";
+import UserInfo from "./components/UserInfo";
+import { Layout, Menu, Breadcrumb } from "antd";
 const { Header, Content, Footer } = Layout;
 
 function PageLayout(props) {
@@ -35,7 +36,7 @@ function Home() {
 function Users() {
   return (
     <PageLayout>
-      <h1>Users</h1>
+      <UserInfo />
     </PageLayout>
   );
 }
