@@ -1,13 +1,14 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import Calculation from "./components/Calculation";
+import NavBar from "./components/NavBar";
 
 function Index() {
-  return <h2>Home</h2>;
-}
-
-function About() {
-  return <h2>About</h2>;
+  return (
+    <h2>
+      <NavBar />
+    </h2>
+  );
 }
 
 function Users() {
@@ -18,20 +19,6 @@ function AppRouter() {
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/calculation/">About</Link>
-            </li>
-            <li>
-              <Link to="/users/">Users</Link>
-            </li>
-          </ul>
-        </nav>
-
         <Route path="/" exact component={Index} />
         <Route path="/calculation/" component={Calculation} />
         <Route path="/users/" component={Users} />
