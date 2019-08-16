@@ -4,11 +4,6 @@ import { Form, InputNumber, Input, Button, Select } from "antd";
 const { Option } = Select;
 
 class UserInfoForm extends React.Component {
-  state = {
-    confirmDirty: false,
-    autoCompleteResult: []
-  };
-
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {

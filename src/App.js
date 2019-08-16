@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 // import Calculation from "./components/Calculation";
 import NavBar from "./components/NavBar";
 import UserInfo from "./components/UserInfo";
+import Ingredients from "./components/Ingredients";
 import { Layout, Menu, Breadcrumb } from "antd";
 const { Header, Content, Footer } = Layout;
 
@@ -56,6 +57,7 @@ function AppRouter() {
         <Route path="/" exact component={Home} />
         <Route path="/calculation/" component={Calculation} />
         <Route path="/users/" component={Users} />
+        <Route path="/create-ingredients" component={Ingredients} />
       </div>
     </Router>
   );
