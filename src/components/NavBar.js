@@ -1,21 +1,30 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Layout, Menu, Breadcrumb } from "antd";
+
+const { Header, Content, Footer } = Layout;
 
 function NavBar() {
   return (
-    <nav>
-      <ul>
-        <li>
+    <Header>
+      <div className="logo" />
+      <Menu
+        theme="dark"
+        mode="horizontal"
+        defaultSelectedKeys={["1"]}
+        style={{ lineHeight: "64px" }}
+      >
+        <Menu.Item key="1">
           <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/calculation/">About</Link>
-        </li>
-        <li>
-          <Link to="/users/">Users</Link>
-        </li>
-      </ul>
-    </nav>
+        </Menu.Item>
+        <Menu.Item key="2">
+          <Link to="/calculation">Calculation</Link>
+        </Menu.Item>
+        <Menu.Item key="3">
+          <Link to="/users">Users</Link>
+        </Menu.Item>
+      </Menu>
+    </Header>
   );
 }
 
