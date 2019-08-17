@@ -10,12 +10,15 @@ class CalculationForm extends React.Component {
     data: [],
     input: {},
     popupVisible: false,
-    result: { prefills: {} }
+    fetchedData: [],
+    meal: {},
+    result: { prefills: {}, requirements: {} },
+    weekday: "Monday"
   };
 
   componentDidMount() {
     axios.get("api/dishes").then(result => {
-      this.setState({ data: result.data });
+      this.setState({ fetchedData: result.data });
     });
   }
 
@@ -26,7 +29,6 @@ class CalculationForm extends React.Component {
   };
 
   handleOk = e => {
-    console.log(e);
     this.setState({
       visible: false
     });
@@ -34,7 +36,7 @@ class CalculationForm extends React.Component {
       const preparedData = {
         timeOfDay: this.state.meal[meal],
         dishName: meal,
-        dayOfWeek: "Wednesday",
+        dayOfWeek: this.state.weekday,
         ingredientDetail: [
           ...this.state.data.find(dish => dish.name === meal)
             .dishIngredientDetails
@@ -71,7 +73,7 @@ class CalculationForm extends React.Component {
     "vitamin b12": 2.4
   };
 
-  priorities = ["energy", "vitamin c", "lipid", "carbohydrate", "protein"];
+  priorities = ["energy", "lipid", "carbohydrate", "protein"];
 
   prepareData() {
     let inputs = [];
@@ -129,11 +131,11 @@ class CalculationForm extends React.Component {
                 const res = dish["dishIngredientDetails"].find(
                   ingredient => ingredient.name === itemKey
                 );
-                res.amount = result.data.result[itemKey];
+                res && (res.amount = result.data.result[itemKey]);
               });
-          this.setState({ calculatedData: result });
-          this.showModal();
         });
+        this.setState({ finalResult: result.data.result });
+        this.showModal();
       });
   };
 
@@ -162,11 +164,20 @@ class CalculationForm extends React.Component {
   };
 
   onChange(prefill, value) {
-    console.log("onChange prefill", prefill);
-    console.log("onChange value", value);
     this.setState({ meal: { ...this.state.meal, [prefill]: value } });
-    console.log("state meal", this.state.meal);
   }
+  onChangeWeekDay(value) {
+    this.setState({ weekday: value });
+  }
+
+  onAddDish = value => {
+    console.log("value", value);
+    const dish = this.state.fetchedData.find(data => data.name === value);
+    console.log("dish", dish);
+    const newData = [...this.state.data];
+    newData.push(dish);
+    this.setState({ data: newData });
+  };
 
   render() {
     console.log("this data", this.state.data);
@@ -174,18 +185,18 @@ class CalculationForm extends React.Component {
     const formItemLayoutWithOutLabel = {
       wrapperCol: {
         xs: { span: 24, offset: 0 },
-        sm: { span: 20, offset: 4 }
+        sm: { span: 16, offset: 2 }
       }
     };
 
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
+        xs: { span: 12 },
         sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 2 }
+        sm: { span: 3 }
       }
     };
 
@@ -205,6 +216,15 @@ class CalculationForm extends React.Component {
     return (
       <>
         <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+          <Form.Item {...formItemLayoutWithOutLabel} label="Please add dish">
+            <Select onChange={this.onAddDish}>
+              {this.state.fetchedData.map(dish => (
+                <Option key={dish.id} value={dish.name}>
+                  {dish.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
           {this.state.data.map(dish => {
             return (
               <fieldset>
@@ -254,11 +274,6 @@ class CalculationForm extends React.Component {
               </fieldset>
             );
           })}
-          <Form.Item {...formItemLayoutWithOutLabel}>
-            <Button type="dashed" onClick={this.add} style={{ width: "60%" }}>
-              <Icon type="plus" /> Add field
-            </Button>
-          </Form.Item>
           <Form.Item {...submitLayout}>
             <Button type="primary" htmlType="submit">
               Calculate
@@ -271,19 +286,52 @@ class CalculationForm extends React.Component {
           onOk={this.handleOk}
           onCancel={this.handleCancel}
         >
-          {this.state.result.prefills &&
-            Object.keys(this.state.result.prefills).map(prefill => (
-              <Button>{prefill}</Button>
-            ))}
-          {Object.keys(this.state.result.prefills).map(prefill => (
-            <Form.Item label={prefill} hasFeedback key={prefill}>
-              <Select onChange={value => this.onChange(prefill, value)}>
-                <Option value="MORNING">MORNING</Option>
-                <Option value="NOON">NOON</Option>
-                <Option value="EVENING">EVENING</Option>
-              </Select>
-            </Form.Item>
-          ))}
+          <>
+            <p>requirements</p>
+            {Object.keys(this.state.result.requirements).map(req => {
+              return (
+                <p>
+                  {req} : {this.state.result.requirements[req]}
+                </p>
+              );
+            })}
+          </>
+          <Form.Item label={`Choose days`} hasFeedback>
+            <Select
+              onChange={value => this.onChangeWeekDay(value)}
+              style={{ width: 150 }}
+              defaultValue="Monday"
+            >
+              <Option value="Monday">MONDAY</Option>
+              <Option value="Tuesday">TUESDAY</Option>
+              <Option value="WEDNESDAY">WEDNESDAY</Option>
+              <Option value="THURSDAY">THURSDAY</Option>
+              <Option value="TuesdFRIDAYay">FRIDAY</Option>
+              <Option value="SATURDAY">SATURDAY</Option>
+              <Option value="SUNDAY">SUNDAY</Option>
+            </Select>
+          </Form.Item>
+
+          {Object.keys(this.state.result.prefills).map(prefill => {
+            console.log("this.state.result", this.state.finalResult);
+            return (
+              <Form.Item
+                label={`(${this.state.finalResult[prefill]}) ${prefill}`}
+                hasFeedback
+                key={prefill}
+              >
+                <Select
+                  onChange={value => this.onChange(prefill, value)}
+                  style={{ width: 150 }}
+                  defaultValue="MORNING"
+                >
+                  <Option value="MORNING">MORNING</Option>
+                  <Option value="NOON">NOON</Option>
+                  <Option value="EVENING">EVENING</Option>
+                </Select>
+              </Form.Item>
+            );
+          })}
         </Modal>
       </>
     );
