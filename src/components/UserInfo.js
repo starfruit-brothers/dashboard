@@ -235,11 +235,18 @@ class UserInfoForm extends React.Component {
           </h2>
           {this.state.data ? (
             Object.keys(this.state.data).map(key => (
-              <Row style={{ textAlign: "center" }}>
-                <Col style={{ textAlign: "center" }} span={6}>
+              <Row style={{ padding: "1rem", fontSize: "1.25rem" }}>
+                <Col
+                  style={{
+                    textAlign: "center",
+                    fontWeight: 500,
+                    textTransform: "capitalize"
+                  }}
+                  span={12}
+                >
                   {key}
                 </Col>
-                <Col style={{ textAlign: "center" }} span={6}>
+                <Col style={{ textAlign: "center" }} span={12}>
                   {this.state.data[key]}
                 </Col>
               </Row>

@@ -1,0 +1,9 @@
+.good#rating {
+  color: green;
+}
+.medium#rating {
+  color: orange;
+}
+.low#rating {
+  color: red;
+}
