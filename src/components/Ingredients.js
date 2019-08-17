@@ -40,8 +40,6 @@ class IngredientsForm extends React.Component {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log(values);
-
       if (!err) {
         const { name, ration, dishIngredientDetails } = values;
         axios
@@ -92,7 +90,6 @@ class IngredientsForm extends React.Component {
         key={k}
       >
         {getFieldDecorator(`dishIngredientDetails[${k}].ingredientId`, {
-          validateTrigger: ["onChange", "onBlur"],
           rules: [
             {
               required: true,
