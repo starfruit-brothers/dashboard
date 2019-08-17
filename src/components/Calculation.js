@@ -1,7 +1,16 @@
 import React from "react";
 import axios from "axios";
 import "./Calculation.css";
-import { Form, Input, Button, Icon, Modal, AutoComplete, Select } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Icon,
+  Modal,
+  AutoComplete,
+  Select,
+  Table
+} from "antd";
 const { Option } = Select;
 class CalculationForm extends React.Component {
   state = {
@@ -13,7 +22,10 @@ class CalculationForm extends React.Component {
     fetchedData: [],
     meal: {},
     result: { prefills: {}, requirements: {} },
-    weekday: "Monday"
+    weekday: "Monday",
+    finalResult: {},
+    providedResult: {},
+    remainingResult: {}
   };
 
   componentDidMount() {
@@ -56,22 +68,22 @@ class CalculationForm extends React.Component {
     });
   };
 
-  req = {
-    energy: 1920.4,
-    lipid: 48,
-    protein: 89.2,
-    carbohydrate: 312.1,
-    calcium: 700,
-    iron: 39.2,
-    zinc: 4.9,
-    "vitamin a": 500,
-    "vitamin d": 5,
-    "vitamin e": 12,
-    "vitamin c": 70,
-    "vitamin b1": 1,
-    "vitamin b2": 1.2,
-    "vitamin b12": 2.4
-  };
+  req = JSON.parse(localStorage.getItem("data"));
+  //   energy: 1920.4,
+  //   lipid: 48,
+  //   protein: 89.2,
+  //   carbohydrate: 312.1,
+  //   calcium: 700,
+  //   iron: 39.2,
+  //   zinc: 4.9,
+  //   "vitamin a": 500,
+  //   "vitamin d": 5,
+  //   "vitamin e": 12,
+  //   "vitamin c": 70,
+  //   "vitamin b1": 1,
+  //   "vitamin b2": 1.2,
+  //   "vitamin b12": 2.4
+  // };
 
   priorities = ["energy", "lipid", "carbohydrate", "protein"];
 
@@ -135,6 +147,8 @@ class CalculationForm extends React.Component {
               });
         });
         this.setState({ finalResult: result.data.result });
+        this.setState({ providedResult: result.data.provided });
+        this.setState({ remainingResult: result.data.remaining });
         this.showModal();
       });
   };
@@ -213,6 +227,61 @@ class CalculationForm extends React.Component {
       }
     };
 
+    const summaryColumns = [
+      {
+        title: "Nutrient",
+        dataIndex: "Nutrient",
+        key: "Nutrient",
+        render: (text, record) => (
+          <strong style={{ textTransform: "capitalize" }}>
+            {record.nutrient}
+          </strong>
+        )
+      },
+      {
+        title: "Requirements",
+        dataIndex: "key",
+        key: "key",
+        render: (text, record) => (
+          <strong style={{ textTransform: "capitalize" }}>{record.key}</strong>
+        )
+      },
+      {
+        title: "Provided",
+        dataIndex: "realResult",
+        key: "realResult",
+        render: (text, record) => <span>{record.realResult}</span>
+      },
+      {
+        title: "Remaining",
+        dataIndex: "remaining",
+        key: "remaining",
+        render: (text, record) => <span>{record.remaining}</span>
+      },
+      {
+        title: "Rating (%)",
+        dataIndex: "rating",
+        key: "rating",
+        render: (text, record) => {
+          let color = "good";
+          console.log("red", record);
+          const rating = (record.realResult / record.key) * 100;
+          if (rating < 75 && rating > 50) {
+            color = "medium";
+          } else if (rating < 50) {
+            color = "low";
+          }
+          return (
+            rating && (
+              <span id="rating" className={color}>
+                {rating}%
+              </span>
+            )
+          );
+        }
+      }
+    ];
+
     return (
       <>
         <Form {...formItemLayout} onSubmit={this.handleSubmit}>
@@ -280,22 +349,63 @@ class CalculationForm extends React.Component {
             </Button>
           </Form.Item>
         </Form>
+        <Table
+          pagination={false}
+          dataSource={Object.keys(this.req).map(req => {
+            return {
+              nutrient: req,
+              key: this.req[req],
+              realResult: this.state.providedResult[req],
+              remaining: this.state.remainingResult[req]
+            };
+          })}
+          columns={summaryColumns}
+        />
+        {/* <div style={{ width: "400px", float: "left" }}>
+          <>
+            <p>requirements</p>
+            {Object.keys(this.req).map(req => {
+              return (
+                <p>
+                  {req} : {this.req[req]}
+                </p>
+              );
+            })}
+          </>
+        </div>
+        {console.log("fina", this.state.providedResult)}
+        <div style={{ width: "400px", float: "left" }}>
+          <>
+            <p>provided</p>
+            {this.state.providedResult &&
+              Object.keys(this.req).map(req => {
+                return (
+                  <p>
+                    {req} : {this.state.providedResult[req]}
+                  </p>
+                );
+              })}
+          </>
+        </div>
+        <div style={{ width: "400px", float: "left" }}>
+          <>
+            <p>remaining</p>
+            {this.state.remainingResult &&
+              Object.keys(this.req).map(req => {
+                return (
+                  <p>
+                    {req} : {this.state.remainingResult[req]}
+                  </p>
+                );
+              })}
+          </>
+        </div> */}
         <Modal
           title="Basic Modal"
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
         >
-          <>
-            <p>requirements</p>
-            {Object.keys(this.state.result.requirements).map(req => {
-              return (
-                <p>
-                  {req} : {this.state.result.requirements[req]}
-                </p>
-              );
-            })}
-          </>
           <Form.Item label={`Choose days`} hasFeedback>
             <Select
               onChange={value => this.onChangeWeekDay(value)}
