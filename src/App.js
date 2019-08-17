@@ -1,14 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-// import Calculation from "./components/Calculation";
+import Calculation from "./components/Calculation";
 import NavBar from "./components/NavBar";
 import UserInfo from "./components/UserInfo";
 import { Layout, Menu, Breadcrumb } from "antd";
+import "./App.css";
 const { Header, Content, Footer } = Layout;
 
 function PageLayout(props) {
   return (
-    <Layout className="layout" style={{ height: "100vh" }}>
+    <Layout className="layout" style={{ minHeight: "100vh" }}>
       <NavBar />
       <Content style={{ padding: "0 50px" }}>
         <Breadcrumb style={{ margin: "16px 0" }}>
@@ -41,10 +42,10 @@ function Users() {
   );
 }
 
-function Calculation() {
+function CalculationPage() {
   return (
     <PageLayout>
-      <h1>Calculation</h1>
+      <Calculation />
     </PageLayout>
   );
 }
@@ -54,7 +55,7 @@ function AppRouter() {
     <Router>
       <div>
         <Route path="/" exact component={Home} />
-        <Route path="/calculation/" component={Calculation} />
+        <Route path="/calculation/" component={CalculationPage} />
         <Route path="/users/" component={Users} />
       </div>
     </Router>
