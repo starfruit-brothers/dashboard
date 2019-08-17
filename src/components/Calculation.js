@@ -49,7 +49,7 @@ class CalculationForm extends React.Component {
     this.state.data.forEach(dish => {
       result.push({
         key: dish.name,
-        values: JSON.stringify(dish.nutrientMap)
+        values: { ...dish.nutrientMap }
       });
       dish["dishIngredientDetails"].forEach(ingredient => {
         this.state.input[`${dish.id}.${ingredient.id}`] &&
@@ -63,7 +63,10 @@ class CalculationForm extends React.Component {
       inputs: result,
       requirements: this.req,
       alpha: 0.0001,
-      priorities: this.priorities
+      priorities: this.priorities,
+      prefills: {
+        "nho ta 100 gram": "1"
+      }
     };
   }
 
@@ -128,7 +131,7 @@ class CalculationForm extends React.Component {
               <Form.Item label="Quantity" hasFeedback key={dish.id}>
                 <Input
                   type="text"
-                  defaultValue={1}
+                  defaultValue={0}
                   // onChange={this.handleChange}
                 />
               </Form.Item>
