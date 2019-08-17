@@ -48,7 +48,7 @@ class Calendar extends React.Component {
           </Panel>
         ))}
       </Collapse>
-      {/* <Button
+      <Button
         type="link"
         onClick={() => {
           let foodCalendarElement = {
@@ -60,7 +60,7 @@ class Calendar extends React.Component {
         }}
       >
         + Add
-      </Button> */}
+      </Button>
     </>
   );
 
@@ -170,7 +170,7 @@ class Calendar extends React.Component {
           dataSource={this.state.summaryDataSource}
           columns={summaryColumns}
         />
-        {/* <Modal
+        <Modal
           title="Add Dish"
           visible={this.state.visible}
           onOk={this.handleOk}
@@ -202,7 +202,7 @@ class Calendar extends React.Component {
               </Option>
             ))}
           </Select>
-        </Modal> */}
+        </Modal>
       </>
     );
   }

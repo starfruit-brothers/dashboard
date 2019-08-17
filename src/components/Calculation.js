@@ -17,29 +17,70 @@ class CalculationForm extends React.Component {
     });
   }
 
+  req = {
+    energy: 1920.4,
+    lipid: 48,
+    protein: 89.2,
+    carbohydrate: 312.1,
+    calcium: 700,
+    iron: 39.2,
+    zinc: 4.9,
+    "vitamin a": 500,
+    "vitamin d": 5,
+    "vitamin e": 12,
+    "vitamin c": 70,
+    "vitamin b1": 1,
+    "vitamin b2": 1.2,
+    "vitamin b12": 2.4
+  };
+
+  priorities = ["energy", "vitamin c", "lipid", "carbohydrate", "protein"];
+
   prepareData() {
+    let result = [];
+    // inputs: this.state.data.map(dishes => {
+    //   return {
+    //     key: dishes.name,
+    //     values: dishes["dishIngredientDetails"].map(ingredient => {
+    //       return { [ingredient.ingredientName]: ingredient.amount };
+    //     })
+    //   };
+    // })
+    this.state.data.forEach(dish => {
+      result.push({
+        key: dish.name,
+        values: { ...dish.nutrientMap }
+      });
+      dish["dishIngredientDetails"].forEach(ingredient => {
+        this.state.input[`${dish.id}.${ingredient.id}`] &&
+          result.push({
+            key: ingredient.ingredientName,
+            values: { ...ingredient.nutrientMap }
+          });
+      });
+    });
     return {
-      inputs: this.state.data.map(dishes => {
-        return {
-          key: dishes.name,
-          values: dishes["dish_ingredient_details"].map(ingredient => {
-            return { [ingredient.name]: ingredient.amount };
-          })
-        };
-      })
+      inputs: result,
+      requirements: this.req,
+      alpha: 0.0001,
+      priorities: this.priorities,
+      prefills: {
+        "nho ta 100 gram": "1"
+      }
     };
   }
 
   handleSubmit = e => {
     e.preventDefault();
     axios
-      .post("api/calculation", this.prepareData())
+      .post("http://192.168.33.11:8081/calc", this.prepareData())
       .then(result => console.log("result", result));
   };
 
   handleChange = (dishId, ingredientId, value) => {
+    console.log("dishId", dishId);
     const dish = this.state.data.find(dish => dish.id === dishId);
-    const ingredient = dish["dish_ingredient_details"].find(
+    const ingredient = dish["dishIngredientDetails"].find(
       ingredient => ingredient.id === ingredientId
     );
     ingredient.amount = value;
@@ -60,7 +101,7 @@ class CalculationForm extends React.Component {
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 2 }
+        sm: { span: 4 }
       },
       wrapperCol: {
         xs: { span: 24 },
@@ -90,31 +131,36 @@ class CalculationForm extends React.Component {
               <Form.Item label="Quantity" hasFeedback key={dish.id}>
                 <Input
                   type="text"
-                  defaultValue={1}
-                  onChange={this.handleChange}
+                  defaultValue={0}
+                  // onChange={this.handleChange}
                 />
               </Form.Item>
-              {dish["dish_ingredient_details"].map(ingredient => (
+              {dish["dishIngredientDetails"].map(ingredient => (
                 <>
                   <Form.Item
-                    label={`${ingredient.name}`}
+                    label={`${ingredient.ingredientName}`}
                     hasFeedback
                     key={ingredient.id}
                   >
                     <Input
                       // addonBefore={this.checkboxBefore}
                       addonAfter={
-                        <Icon
-                          type="edit"
-                          onClick={() =>
-                            this.enableInput(dish.id, ingredient.id)
-                          }
-                        />
+                        <>
+                          <Input
+                            // type="edit"
+                            // onClick={() =>
+                            //   this.enableInput(dish.id, ingredient.id)
+                            // }
+                            style={{ width: 20 }}
+                            type="checkbox"
+                            onChange={() =>
+                              this.enableInput(dish.id, ingredient.id)
+                            }
+                          />
+                        </>
                       }
                       defaultValue={ingredient.amount}
-                      disabled={
-                        !this.state.input[`${dish.id}.${ingredient.id}`]
-                      }
+                      disabled
                       onChange={e =>
                         this.handleChange(
                           dish.id,
@@ -124,6 +170,7 @@ class CalculationForm extends React.Component {
                       }
                     />
                   </Form.Item>
+                  {/* <span className="hint">ASd</span> */}
                 </>
               ))}
             </fieldset>
