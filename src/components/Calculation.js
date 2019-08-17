@@ -38,7 +38,8 @@ class CalculationForm extends React.Component {
         ingredientDetail: [
           ...this.state.data.find(dish => dish.name === meal)
             .dishIngredientDetails
-        ]
+        ],
+        amount: this.state.data.find(dish => dish.name === meal).quantity
       };
       axios.post("api/dish_ingredient_calendars", preparedData).then(result => {
         console.log("result", result);
@@ -130,7 +131,7 @@ class CalculationForm extends React.Component {
                 );
                 res.amount = result.data.result[itemKey];
               });
-          this.setState({});
+          this.setState({ calculatedData: result });
           this.showModal();
         });
       });
@@ -169,6 +170,13 @@ class CalculationForm extends React.Component {
 
   render() {
     console.log("this data", this.state.data);
+
+    const formItemLayoutWithOutLabel = {
+      wrapperCol: {
+        xs: { span: 24, offset: 0 },
+        sm: { span: 20, offset: 4 }
+      }
+    };
 
     const formItemLayout = {
       labelCol: {
@@ -246,6 +254,11 @@ class CalculationForm extends React.Component {
               </fieldset>
             );
           })}
+          <Form.Item {...formItemLayoutWithOutLabel}>
+            <Button type="dashed" onClick={this.add} style={{ width: "60%" }}>
+              <Icon type="plus" /> Add field
+            </Button>
+          </Form.Item>
           <Form.Item {...submitLayout}>
             <Button type="primary" htmlType="submit">
               Calculate
@@ -265,9 +278,9 @@ class CalculationForm extends React.Component {
           {Object.keys(this.state.result.prefills).map(prefill => (
             <Form.Item label={prefill} hasFeedback key={prefill}>
               <Select onChange={value => this.onChange(prefill, value)}>
-                <Option value="Breakfast">Breakfast</Option>
-                <Option value="Lunch">Lunch</Option>
-                <Option value="Dinner">Dinner</Option>
+                <Option value="MORNING">MORNING</Option>
+                <Option value="NOON">NOON</Option>
+                <Option value="EVENING">EVENING</Option>
               </Select>
             </Form.Item>
           ))}

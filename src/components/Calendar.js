@@ -20,11 +20,11 @@ class Calendar extends React.Component {
         {record[key].map((dish, i) => (
           <Panel header={`${dish.name} (${dish.amount})`} key={i}>
             <ul>
-              {/* {dish.dishIngredientDetails.map(ingredient => (
+              {dish.dishIngredientDetails.map(ingredient => (
                 <li>
                   {ingredient.ingredientName} {ingredient.amount}g
                 </li>
-              ))} */}
+              ))}
             </ul>
           </Panel>
         ))}

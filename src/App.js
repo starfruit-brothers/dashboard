@@ -60,6 +60,14 @@ function CalendarPage() {
   );
 }
 
+function IngredientPage() {
+  return (
+    <PageLayout>
+      <Ingredients />
+    </PageLayout>
+  );
+}
+
 function AppRouter() {
   return (
     <Router>
@@ -67,7 +75,7 @@ function AppRouter() {
         <Route path="/" exact component={Home} />
         <Route path="/calculation/" component={CalculationPage} />
         <Route path="/users/" component={Users} />
-        <Route path="/create-ingredients" component={Ingredients} />
+        <Route path="/create-ingredients" component={IngredientPage} />
         <Route path="/calendar" component={CalendarPage} />
       </div>
     </Router>
