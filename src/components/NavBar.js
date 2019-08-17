@@ -23,6 +23,9 @@ function NavBar() {
         <Menu.Item key="/users">
           <Link to="/users">Users</Link>
         </Menu.Item>
+        <Menu.Item key="/calendar">
+          <Link to="/calendar">Calendar</Link>
+        </Menu.Item>
       </Menu>
     </Header>
   );

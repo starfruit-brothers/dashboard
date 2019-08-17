@@ -5,6 +5,7 @@ import NavBar from "./components/NavBar";
 import UserInfo from "./components/UserInfo";
 import Ingredients from "./components/Ingredients";
 import { Layout, Menu, Breadcrumb } from "antd";
+import Calendar from "./components/Calendar";
 import "./App.css";
 const { Header, Content, Footer } = Layout;
 
@@ -21,7 +22,7 @@ function PageLayout(props) {
         <div style={{ background: "#fff", padding: 24 }}>{props.children}</div>
       </Content>
       <Footer style={{ textAlign: "center" }}>
-        Ant Design ©2018 Created by Ant UED
+        Ant Design ©2018 Created by <strong>Starfruit Bros</strong>
       </Footer>
     </Layout>
   );
@@ -51,6 +52,14 @@ function CalculationPage() {
   );
 }
 
+function CalendarPage() {
+  return (
+    <PageLayout>
+      <Calendar />
+    </PageLayout>
+  );
+}
+
 function AppRouter() {
   return (
     <Router>
@@ -59,6 +68,7 @@ function AppRouter() {
         <Route path="/calculation/" component={CalculationPage} />
         <Route path="/users/" component={Users} />
         <Route path="/create-ingredients" component={Ingredients} />
+        <Route path="/calendar" component={CalendarPage} />
       </div>
     </Router>
   );

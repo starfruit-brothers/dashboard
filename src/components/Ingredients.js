@@ -99,8 +99,17 @@ class IngredientsForm extends React.Component {
           ]
         })(
           <Select
+            showSearch
+            style={{ width: 200 }}
             placeholder="select a value"
+            optionFilterProp="children"
             onChange={value => setFieldsValue({ ingredientId: value })}
+            // onSearch={onSearch}
+            filterOption={(input, option) =>
+              option.props.children
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0
+            }
           >
             {this.state.ingredients.map(ingredient => (
               <Option key={ingredient.id} value={`${ingredient.id}`}>
