@@ -4,37 +4,43 @@ import { Form, InputNumber, Input, Button, Select } from "antd";
 const { Option } = Select;
 
 class UserInfoForm extends React.Component {
-  state = {
-    confirmDirty: false,
-    autoCompleteResult: []
-  };
-
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
+        const {
+          name,
+          age,
+          weight,
+          animalBasedFood,
+          workingLevel,
+          gender,
+          isAids,
+          isHiv,
+          monthOfPregnancy,
+          monthOfBreastfeeding
+        } = values;
         axios
           .post("/api/users", {
-            name: values.name,
-            age: values.age,
-            weight: values.weight,
-            animal_based_food: values.animalBasedFood,
-            working_level: values.workingLevel,
-            gender: values.gender
+            name,
+            age,
+            weight,
+            animalBasedFood,
+            workingLevel,
+            gender,
+            isAids,
+            isHiv,
+            monthOfPregnancy,
+            monthOfBreastfeeding
           })
-          .then(function(response) {
-            console.log(response);
+          .then(({ data }) => {
+            localStorage.setItem("data", data);
           })
-          .catch(function(error) {
-            console.log(error);
+          .catch(err => {
+            console.log(err);
           });
       }
     });
-  };
-
-  handleChange = e => {
-    const { setFieldsValue } = this.props.form;
-    setFieldsValue({});
   };
 
   render() {
@@ -93,39 +99,49 @@ class UserInfoForm extends React.Component {
             ]
           })(<InputNumber />)}
         </Form.Item>
-        <Form.Item label="Has HIV ?" hasFeedback>
+        <Form.Item label="Is HIV ?" hasFeedback>
           {getFieldDecorator("isHiv", {
             rules: [
               {
                 required: true
               }
-            ]
+            ],
+            initialValue: "false"
           })(
             <Select
-              defaultValue="true"
               placeholder="select a value"
-              onChange={value => setFieldsValue({ animalBasedFood: value })}
+              onChange={value => {
+                setFieldsValue({ isHiv: value });
+                if (value === "false") {
+                  setFieldsValue({ isAids: value });
+                }
+              }}
             >
               <Option value="true">Yes</Option>
               <Option value="false">No</Option>
             </Select>
           )}
         </Form.Item>
-        <Form.Item label="Animal Based Food" hasFeedback>
-          {getFieldDecorator("animalBasedFood", {
+        <Form.Item label="Is AIDS ?" hasFeedback>
+          {getFieldDecorator("isAids", {
             rules: [
               {
                 required: true
               }
-            ]
+            ],
+            initialValue: "false"
           })(
             <Select
               placeholder="select a value"
-              onChange={value => setFieldsValue({ animalBasedFood: value })}
+              onChange={value => {
+                setFieldsValue({ isAids: value });
+                if (value === "true") {
+                  setFieldsValue({ isHiv: value });
+                }
+              }}
             >
-              <Option value="VEGETARIAN">Vegetarian</Option>
-              <Option value="AVERAGE">Average</Option>
-              <Option value="HIGH">High</Option>
+              <Option value="true">Yes</Option>
+              <Option value="false">No</Option>
             </Select>
           )}
         </Form.Item>
@@ -175,13 +191,47 @@ class UserInfoForm extends React.Component {
           })(
             <Select
               placeholder="select a value"
-              onChange={value => setFieldsValue({ gender: value })}
+              onChange={value => {
+                setFieldsValue({ gender: value });
+                if (value === "MALE") {
+                  setFieldsValue({
+                    monthOfBreastfeeding: 0,
+                    monthOfPregnancy: 0
+                  });
+                }
+              }}
             >
               <Option value="MALE">Male</Option>
               <Option value="FEMALE">Female</Option>
             </Select>
           )}
         </Form.Item>
+        {this.props.form.getFieldValue("gender") === "FEMALE" ? (
+          <>
+            <Form.Item label="Month of Pregnancy" hasFeedback>
+              {getFieldDecorator("monthOfPregnancy", {
+                rules: [
+                  {
+                    required: true
+                  }
+                ],
+                initialValue: 0
+              })(<InputNumber />)}
+            </Form.Item>
+            <Form.Item label="Month of Breastfeeding" hasFeedback>
+              {getFieldDecorator("monthOfBreastfeeding", {
+                rules: [
+                  {
+                    required: true
+                  }
+                ],
+                initialValue: 0
+              })(<InputNumber />)}
+            </Form.Item>
+          </>
+        ) : (
+          <></>
+        )}
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">
             Submit
