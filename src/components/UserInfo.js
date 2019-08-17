@@ -33,11 +33,11 @@ class UserInfoForm extends React.Component {
             monthOfPregnancy,
             monthOfBreastfeeding
           })
-          .then(function(response) {
-            console.log(response);
+          .then(({ data }) => {
+            localStorage.setItem("data", data);
           })
-          .catch(function(error) {
-            console.log(error);
+          .catch(err => {
+            console.log(err);
           });
       }
     });
