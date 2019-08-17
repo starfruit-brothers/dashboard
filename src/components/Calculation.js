@@ -1,14 +1,16 @@
 import React from "react";
 import axios from "axios";
 import "./Calculation.css";
-import { Form, Input, Button, Icon } from "antd";
-
+import { Form, Input, Button, Icon, Modal, AutoComplete, Select } from "antd";
+const { Option } = Select;
 class CalculationForm extends React.Component {
   state = {
     confirmDirty: false,
     autoCompleteResult: [],
     data: [],
-    input: {}
+    input: {},
+    popupVisible: false,
+    result: { prefills: {} }
   };
 
   componentDidMount() {
@@ -16,6 +18,40 @@ class CalculationForm extends React.Component {
       this.setState({ data: result.data });
     });
   }
+
+  showModal = () => {
+    this.setState({
+      visible: true
+    });
+  };
+
+  handleOk = e => {
+    console.log(e);
+    this.setState({
+      visible: false
+    });
+    Object.keys(this.state.meal).forEach(meal => {
+      const preparedData = {
+        timeOfDay: this.state.meal[meal],
+        dishName: meal,
+        dayOfWeek: "Wednesday",
+        ingredientDetail: [
+          ...this.state.data.find(dish => dish.name === meal)
+            .dishIngredientDetails
+        ]
+      };
+      axios.post("api/dish_ingredient_calendars", preparedData).then(result => {
+        console.log("result", result);
+      });
+    });
+  };
+
+  handleCancel = e => {
+    console.log(e);
+    this.setState({
+      visible: false
+    });
+  };
 
   req = {
     energy: 1920.4,
@@ -37,7 +73,7 @@ class CalculationForm extends React.Component {
   priorities = ["energy", "vitamin c", "lipid", "carbohydrate", "protein"];
 
   prepareData() {
-    let result = [];
+    let inputs = [];
     // inputs: this.state.data.map(dishes => {
     //   return {
     //     key: dishes.name,
@@ -47,34 +83,57 @@ class CalculationForm extends React.Component {
     //   };
     // })
     this.state.data.forEach(dish => {
-      result.push({
+      inputs.push({
         key: dish.name,
         values: { ...dish.nutrientMap }
       });
       dish["dishIngredientDetails"].forEach(ingredient => {
         this.state.input[`${dish.id}.${ingredient.id}`] &&
-          result.push({
+          inputs.push({
             key: ingredient.ingredientName,
             values: { ...ingredient.nutrientMap }
           });
       });
     });
-    return {
-      inputs: result,
+    let prefills = {};
+    this.state.data.forEach(dish => {
+      dish.quantity && (prefills[dish.name] = dish.quantity);
+    });
+    const result = {
+      inputs,
       requirements: this.req,
       alpha: 0.0001,
       priorities: this.priorities,
-      prefills: {
-        "nho ta 100 gram": "1"
-      }
+      // prefills: {
+      //   "nho ta 100 gram": "1",
+      //   "nho ta 100 gram": "1",
+      // }
+      prefills
     };
+    this.setState({ result });
+    return result;
   }
 
   handleSubmit = e => {
     e.preventDefault();
     axios
       .post("http://192.168.33.11:8081/calc", this.prepareData())
-      .then(result => console.log("result", result));
+      .then(result => {
+        console.log("result", result);
+        Object.keys(result.data.result).forEach(itemKey => {
+          const res = this.state.data.find(dish => dish.name === itemKey);
+          res
+            ? (res.quantity = result.data.result[itemKey])
+            : this.state.data.forEach(dish => {
+                const res = dish["dishIngredientDetails"].find(
+                  ingredient => ingredient.name === itemKey
+                );
+                res.amount = result.data.result[itemKey];
+              });
+          this.setState({});
+          this.showModal();
+        });
+      });
   };
 
   handleChange = (dishId, ingredientId, value) => {
@@ -87,6 +146,13 @@ class CalculationForm extends React.Component {
     this.setState({});
   };
 
+  handleChangeQuantity = (dishId, value) => {
+    console.log("dishId", dishId);
+    const dish = this.state.data.find(dish => dish.id === dishId);
+    dish.quantity = value;
+    this.setState({});
+  };
+
   enableInput = (dishId, ingredientId) => {
     // this.setState({ input: { ...this.state.input } });
     const input = this.state.input;
@@ -94,9 +160,15 @@ class CalculationForm extends React.Component {
     this.setState({ input });
   };
 
+  onChange(prefill, value) {
+    console.log("onChange prefill", prefill);
+    console.log("onChange value", value);
+    this.setState({ meal: { ...this.state.meal, [prefill]: value } });
+    console.log("state meal", this.state.meal);
+  }
+
   render() {
     console.log("this data", this.state.data);
-    // const { getFieldDecorator, setFieldsValue } = this.props.form;
 
     const formItemLayout = {
       labelCol: {
@@ -123,65 +195,84 @@ class CalculationForm extends React.Component {
     };
 
     return (
-      <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-        {this.state.data.map(dish => {
-          return (
-            <fieldset>
-              <legend>{dish.name}</legend>
-              <Form.Item label="Quantity" hasFeedback key={dish.id}>
-                <Input
-                  type="text"
-                  defaultValue={0}
-                  // onChange={this.handleChange}
-                />
-              </Form.Item>
-              {dish["dishIngredientDetails"].map(ingredient => (
-                <>
-                  <Form.Item
-                    label={`${ingredient.ingredientName}`}
-                    hasFeedback
-                    key={ingredient.id}
-                  >
-                    <Input
-                      // addonBefore={this.checkboxBefore}
-                      addonAfter={
-                        <>
-                          <Input
-                            // type="edit"
-                            // onClick={() =>
-                            //   this.enableInput(dish.id, ingredient.id)
-                            // }
-                            style={{ width: 20 }}
-                            type="checkbox"
-                            onChange={() =>
-                              this.enableInput(dish.id, ingredient.id)
-                            }
-                          />
-                        </>
-                      }
-                      defaultValue={ingredient.amount}
-                      disabled
-                      onChange={e =>
-                        this.handleChange(
-                          dish.id,
-                          ingredient.id,
-                          e.target.value
-                        )
-                      }
-                    />
-                  </Form.Item>
-                  {/* <span className="hint">ASd</span> */}
-                </>
-              ))}
-            </fieldset>
-          );
-        })}
-        <Form.Item {...submitLayout}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+      <>
+        <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+          {this.state.data.map(dish => {
+            return (
+              <fieldset>
+                <legend>{dish.name}</legend>
+                <Form.Item label="Quantity" hasFeedback key={dish.id}>
+                  <Input
+                    type="text"
+                    value={dish.quantity}
+                    onChange={e =>
+                      this.handleChangeQuantity(dish.id, e.target.value)
+                    }
+                  />
+                </Form.Item>
+                {dish["dishIngredientDetails"].map(ingredient => (
+                  <>
+                    <Form.Item
+                      label={`${ingredient.ingredientName}`}
+                      hasFeedback
+                      key={ingredient.id}
+                    >
+                      <Input
+                        addonAfter={
+                          <>
+                            <Input
+                              style={{ width: 20 }}
+                              type="checkbox"
+                              onChange={() =>
+                                this.enableInput(dish.id, ingredient.id)
+                              }
+                            />
+                          </>
+                        }
+                        defaultValue={ingredient.amount}
+                        disabled
+                        onChange={e =>
+                          this.handleChange(
+                            dish.id,
+                            ingredient.id,
+                            e.target.value
+                          )
+                        }
+                      />
+                    </Form.Item>
+                    {/* <span className="hint">ASd</span> */}
+                  </>
+                ))}
+              </fieldset>
+            );
+          })}
+          <Form.Item {...submitLayout}>
+            <Button type="primary" htmlType="submit">
+              Calculate
+            </Button>
+          </Form.Item>
+        </Form>
+        <Modal
+          title="Basic Modal"
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+        >
+          {this.state.result.prefills &&
+            Object.keys(this.state.result.prefills).map(prefill => (
+              <Button>{prefill}</Button>
+            ))}
+          {Object.keys(this.state.result.prefills).map(prefill => (
+            <Form.Item label={prefill} hasFeedback key={prefill}>
+              <Select onChange={value => this.onChange(prefill, value)}>
+                <Option value="Breakfast">Breakfast</Option>
+                <Option value="Lunch">Lunch</Option>
+                <Option value="Dinner">Dinner</Option>
+              </Select>
+            </Form.Item>
+          ))}
+        </Modal>
+      </>
     );
   }
 }
