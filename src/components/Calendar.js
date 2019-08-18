@@ -11,7 +11,8 @@ class Calendar extends React.Component {
     summaryDataSource: [],
     dishes: [],
     visible: false,
-    foodCalendarElement: null
+    foodCalendarElement: null,
+    realResult: {}
   };
 
   collapseItem = (record, key) => (
@@ -46,26 +47,30 @@ class Calendar extends React.Component {
     axios
       .get("/api/dishes")
       .then(({ data }) => this.setState({ dishes: data }));
-    const userInfo = JSON.parse(localStorage.getItem("data"));
-    const keys = Object.keys(userInfo);
-    const expectedResult = { ...userInfo };
-    const realResult = {};
-    const rating = {};
-    const summaryDataSource = keys.map(key => {
-      expectedResult[key] = Math.round(expectedResult[key] * 7 * 100) / 100;
-      realResult[key] = faker.random.number({ min: 1, max: 500 });
-      rating[key] =
-        Math.round((realResult[key] / expectedResult[key]) * 100 * 100) / 100;
-      return {
-        key,
-        expectedResult: expectedResult[key],
-        realResult: realResult[key],
-        rating: rating[key]
-      };
-    });
-    this.setState({
-      userInfo,
-      summaryDataSource
+    axios.get("/api/nutrient-map-for-week").then(({ data }) => {
+      const userInfo = JSON.parse(localStorage.getItem("data"));
+      const keys = Object.keys(userInfo);
+      const expectedResult = { ...userInfo };
+      const realResult = {};
+      const rating = {};
+      const summaryDataSource = keys.map(key => {
+        expectedResult[key] = Math.round(expectedResult[key] * 7 * 100) / 100;
+        realResult[key] = Math.round(data[key] * 100) / 100;
+        rating[key] =
+          Math.round((realResult[key] / expectedResult[key]) * 100 * 100) / 100;
+        return {
+          key,
+          expectedResult: expectedResult[key],
+          realResult: realResult[key],
+          rating: rating[key]
+        };
+      });
+      this.setState({ realResult: data });
+
+      this.setState({
+        userInfo,
+        summaryDataSource
+      });
     });
   }
 
