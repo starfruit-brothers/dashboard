@@ -20,8 +20,8 @@ function NavBar() {
         <Menu.Item key="/users">
           <Link to="/users">Users</Link>
         </Menu.Item>
-        <Menu.Item key="/create-ingredients">
-          <Link to="/create-ingredients">Ingredients</Link>
+        <Menu.Item key="/create-dish">
+          <Link to="/create-dish">Create Dish</Link>
         </Menu.Item>
         <Menu.Item key="/calculation">
           <Link to="/calculation">Calculation</Link>

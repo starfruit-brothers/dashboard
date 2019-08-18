@@ -75,7 +75,7 @@ function AppRouter() {
         <Route path="/" exact component={Home} />
         <Route path="/calculation/" component={CalculationPage} />
         <Route path="/users/" component={Users} />
-        <Route path="/create-ingredients" component={IngredientPage} />
+        <Route path="/create-dish" component={IngredientPage} />
         <Route path="/calendar" component={CalendarPage} />
       </div>
     </Router>

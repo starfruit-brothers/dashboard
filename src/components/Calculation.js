@@ -271,13 +271,11 @@ class CalculationForm extends React.Component {
           } else if (rating < 50) {
             color = "low";
           }
-          return (
-            rating && (
-              <span id="rating" className={color}>
-                {rating}%
-              </span>
-            )
-          );
+          return rating ? (
+            <span id="rating" className={color}>
+              {Math.round(rating * 100) / 100}%
+            </span>
+          ) : null;
         }
       }
     ];
