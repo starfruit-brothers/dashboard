@@ -146,10 +146,12 @@ class CalculationForm extends React.Component {
                 res && (res.amount = result.data.result[itemKey]);
               });
         });
-        this.setState({ finalResult: result.data.result });
+        this.setState({ finalResult: result.data.result }, () =>
+          this.showModal()
+        );
         this.setState({ providedResult: result.data.provided });
         this.setState({ remainingResult: result.data.remaining });
-        this.showModal();
+        // this.showModal();
       });
   };
 
@@ -419,8 +421,9 @@ class CalculationForm extends React.Component {
               <Option value="SUNDAY">SUNDAY</Option>
             </Select>
           </Form.Item>
+          {console.log("wddw", this.state.finalResult)}
 
-          {Object.keys(this.state.result.prefills).map(prefill => {
+          {Object.keys(this.state.finalResult).map(prefill => {
             console.log("this.state.result", this.state.finalResult);
             return (
               <Form.Item
@@ -431,7 +434,7 @@ class CalculationForm extends React.Component {
                 <Select
                   onChange={value => this.onChange(prefill, value)}
                   style={{ width: 150 }}
-                  defaultValue="MORNING"
+                  defaultValue=""
                 >
                   <Option value="MORNING">MORNING</Option>
                   <Option value="NOON">NOON</Option>
