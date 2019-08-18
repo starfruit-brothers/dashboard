@@ -32,6 +32,9 @@ function Home() {
   return (
     <PageLayout>
       <h1>Home</h1>
+      <p className="middle">
+        Please input user info <Link to="/users">here</Link> to start.
+      </p>
     </PageLayout>
   );
 }
